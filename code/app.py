@@ -1,14 +1,22 @@
 from flask import Flask, request
 from flask_restful import Api, Resource
+from flask_jwt import JWT, jwt_required
+
+from security import authenticate, identity
 
 app = Flask(__name__)
 app.secret_key = 'wanted'
 api = Api(app)
 
+# JWT creates a new endpoint named as /auth
+jwt = JWT(app, authenticate, identity)
+
 items = []
 
 
 class Item(Resource):
+    # this @jwt_required will ensure that for accessing this get they have to be authenticated.
+    @jwt_required()
     def get(self, name):
         # for item in items:
         #     if item['name'] == name:
@@ -31,6 +39,7 @@ class Item(Resource):
 
 
 class ItemList(Resource):
+    @jwt_required()
     def get(self):
         return {'items': items}
 
